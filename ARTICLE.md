@@ -4,7 +4,7 @@
 
 ---
 
-![ZenGram Distraction-Free UI](assets/zengram-ui-screenshot.png)
+![ZenGram Distraction-Free UI](assets/zengram-chat-demo.png)
 
 ---
 

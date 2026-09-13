@@ -2,6 +2,11 @@
 
 A minimal, distraction-free Instagram client engineered exclusively for **Direct Messages, in-chat Reels, person-specific Stories, and high-performance Voice & Video Calling**.
 
+<div align="center">
+  <img src="assets/zengram-chat-demo.png" alt="ZenGram UI Demonstration" width="100%" />
+  <p><em>▲ <strong>Demonstration:</strong> Notice the curved arrow pointing to the sent reel — only reels sent inside chats are visible in a distraction-free sandbox. Zero infinite explore feeds, zero ads.</em></p>
+</div>
+
 ---
 
 ## 🎯 What ZenGram Solves
