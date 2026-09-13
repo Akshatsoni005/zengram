@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>ZenGram - Instagram Direct</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #fff; }
+    #app-container { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    
+    /* Top Mobile App Header */
+    .mobile-header {
+      height: 54px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #262626;
+      background: #000;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-logo { font-size: 18px; font-weight: 700; background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .zen-tag { font-size: 10px; background: #0095f6; color: #fff; padding: 2px 6px; border-radius: 6px; font-weight: 700; }
+    
+    /* Frame view or native connector */
+    .view-container { flex: 1; position: relative; overflow-y: auto; }
+    
+    /* Install Banner */
+    #install-banner {
+      display: none;
+      background: #1c1c1e;
+      border-bottom: 1px solid #333;
+      padding: 12px 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #install-banner.show { display: flex; }
+    .install-text { font-size: 13px; }
+    .install-btn { background: #0095f6; border: none; color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; }
+
+    /* Content Cards */
+    .card-list { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .chat-card {
+      background: #141414;
+      border: 1px solid #262626;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #f09433, #dc2743, #bc1888);
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .avatar-inner { width: 100%; height: 100%; border-radius: 50%; background: #262626; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .chat-info { flex: 1; }
+    .chat-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .chat-sub { font-size: 12px; color: #8e8e8e; }
+
+    /* Launch Native DM Button */
+    .launch-action-bar { padding: 16px; margin-top: auto; }
+    .btn-launch-insta {
+      display: block;
+      width: 100%;
+      background: #0095f6;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* PWA features badge */
+    .features-pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 16px;
+      margin-top: 8px;
+    }
+    .fpill {
+      font-size: 11px;
+      background: #1f1f1f;
+      color: #a8a8a8;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="header-logo">ZenGram</span>
+        <span class="zen-tag">DMs Only</span>
+      </div>
+      <span style="font-size:12px; color:#27c93f; font-weight:600;">● Focus ON</span>
+    </header>
+
+    <!-- Install Banner for Phone -->
+    <div id="install-banner">
+      <div class="install-text">📲 Install ZenGram to your Home Screen</div>
+      <button class="install-btn" id="pwa-install-btn">Install</button>
+    </div>
+
+    <div class="features-pill-row">
+      <span class="fpill">🚫 No Feed</span>
+      <span class="fpill">🚫 No Explore</span>
+      <span class="fpill">🚫 No Reels Tab</span>
+      <span class="fpill">🎬 In-Chat Reels Only</span>
+      <span class="fpill">📞 Calls Enabled</span>
+    </div>
+
+    <!-- View Container -->
+    <div class="view-container">
+      <div class="card-list">
+        <a href="https://www.instagram.com/direct/inbox/" class="chat-card" target="_blank">
+          <div class="avatar"><div class="avatar-inner">💬</div></div>
+          <div class="chat-info">
+            <div class="chat-name">Direct Messages Inbox</div>
+            <div class="chat-sub">Open your distraction-free conversations</div>
+          </div>
+          <span style="font-size:18px; color:#737373;">›</span>
+        </a>
+
+        <div class="chat-card" id="call-bridge-card">
+          <div class="avatar" style="background:#27c93f;"><div class="avatar-inner" style="background:#141414;">📞</div></div>
+          <div class="chat-info">
+            <div class="chat-name">Instant WebRTC Call Room</div>
+            <div class="chat-sub">Hardware video & voice calling on phone</div>
+          </div>
+          <button class="install-btn" style="background:#27c93f;" id="test-call-btn">Start</button>
+        </div>
+      </div>
+
+      <div class="launch-action-bar">
+        <button class="btn-launch-insta" id="open-dm-btn">
+          🚀 Open Instagram Direct
+        </button>
+        <p style="font-size:11px; color:#737373; text-align:center; margin-top:8px;">
+          Feed & Explore are filtered out. Tap "Add to Home Screen" in your mobile browser to use as a native app.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-banner').classList.add('show');
+    });
+
+    document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('install-banner').classList.remove('show');
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    document.getElementById('open-dm-btn').addEventListener('click', () => {
+      window.location.href = 'https://www.instagram.com/direct/inbox/';
+    });
+
+    document.getElementById('test-call-btn').addEventListener('click', () => {
+      const room = 'zengram-' + Math.random().toString(36).substring(2, 9);
+      window.open('https://meet.jit.si/' + room, '_blank');
+    });
+  </script>
+</body>
+</html>

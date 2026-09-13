@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/core/:path*", "destination": "/core/:path*" },
+    { "source": "/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/pwa/:path*", "destination": "/phone-pwa/:path*" },
+    { "source": "/:path*", "destination": "/preview-demo/:path*" }
+  ]
+}

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZenGram Interactive Demo - Distraction-Free Instagram Chat</title>
+  <link rel="stylesheet" href="demo.css">
+  <link rel="stylesheet" href="../core/zengram-style.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Control Bar -->
+  <header class="demo-topbar">
+    <div class="demo-brand">
+      <span class="logo-badge">🔒 ZenGram</span>
+      <span class="version-tag">v1.0.0 Live Interactive Simulator</span>
+    </div>
+    <div class="demo-controls">
+      <button id="view-mode-toggle" class="control-btn active">📱 Mobile Phone View</button>
+      <button id="test-feed-block" class="control-btn warning">⚠️ Test Click "Home Feed"</button>
+      <button id="test-reels-block" class="control-btn warning">⚠️ Test Click "Reels Feed"</button>
+      <button id="btn-open-showcase" class="control-btn" style="background:#0095f6; border-color:#0095f6; color:#fff; font-weight:600;">✨ Features & Downloads</button>
+      <button id="btn-open-privacy" class="control-btn" style="background:rgba(39,201,63,0.15); color:#27c93f; border-color:rgba(39,201,63,0.3); font-weight:600;">🛡️ Privacy Guarantee</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="demo-main-container">
+    <div id="device-wrapper" class="device-mobile">
+      <div class="app-shell">
+        <!-- Sidebar / Bottom Bar Navigation -->
+        <nav class="app-nav">
+          <div class="nav-brand">
+            <h2>Instagram</h2>
+            <span class="zen-pill">DMs Only</span>
+          </div>
+
+          <div class="nav-links">
+            <button class="nav-item active" data-view="inbox">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Messages</span>
+            </button>
+
+            <button class="nav-item" data-view="search">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span>Search Profile</span>
+            </button>
+
+            <button class="nav-item" data-view="saved" id="nav-saved-btn">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>Saved Posts</span>
+            </button>
+
+            <!-- Disabled Distraction Items -->
+            <div class="nav-item disabled" title="Blocked by ZenGram">
+              <span class="strikethrough">Home Feed</span>
+              <span class="badge-blocked">Blocked</span>
+            </div>
+            <div class="nav-item disabled" title="Blocked by ZenGram">
+              <span class="strikethrough">Reels Feed</span>
+              <span class="badge-blocked">Blocked</span>
+            </div>
+            <div class="nav-item disabled" title="Blocked by ZenGram">
+              <span class="strikethrough">Explore</span>
+              <span class="badge-blocked">Blocked</span>
+            </div>
+          </div>
+
+          <div class="nav-footer">
+            <div class="user-profile-summary">
+              <div class="avatar-sm">U</div>
+              <div class="user-meta">
+                <span class="u-name">you</span>
+                <span class="u-status">Focus Mode ON</span>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Dynamic Content Area -->
+        <section class="app-content">
+          <!-- Inbox View -->
+          <div id="inbox-pane" class="inbox-pane">
+            <div class="pane-header">
+              <h3>Direct</h3>
+              <span class="thread-count">3 Conversations</span>
+            </div>
+
+            <div class="conversation-list">
+              <div class="convo-item active" data-contact="rohan" data-name="Rohan Sharma" data-avatar="R" data-story="true">
+                <div class="avatar-ring has-story">
+                  <div class="avatar-inner">R</div>
+                </div>
+                <div class="convo-info">
+                  <div class="convo-top">
+                    <strong>Rohan Sharma</strong>
+                    <span class="time">Just now</span>
+                  </div>
+                  <p class="preview-text">Shared a reel: "140W GPU test benchmark..."</p>
+                </div>
+              </div>
+
+              <div class="convo-item" data-contact="priya" data-name="Priya Patel" data-avatar="P" data-story="false">
+                <div class="avatar-ring">
+                  <div class="avatar-inner">P</div>
+                </div>
+                <div class="convo-info">
+                  <div class="convo-top">
+                    <strong>Priya Patel</strong>
+                    <span class="time">15m ago</span>
+                  </div>
+                  <p class="preview-text">Are you joining the study call today?</p>
+                </div>
+              </div>
+
+              <div class="convo-item" data-contact="kunal" data-name="Kunal Verma" data-avatar="K" data-story="true">
+                <div class="avatar-ring has-story">
+                  <div class="avatar-inner">K</div>
+                </div>
+                <div class="convo-info">
+                  <div class="convo-top">
+                    <strong>Kunal Verma</strong>
+                    <span class="time">2h ago</span>
+                  </div>
+                  <p class="preview-text">Sent audio note</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat Conversation Area -->
+          <div id="chat-pane" class="chat-pane">
+            <header class="chat-header">
+              <div class="chat-contact-info" id="chat-contact-btn" title="Tap to view story if active">
+                <div class="avatar-ring has-story" id="active-header-avatar">
+                  <div class="avatar-inner" id="active-avatar-letter">R</div>
+                </div>
+                <div class="chat-title-group">
+                  <h4 id="active-chat-name">Rohan Sharma</h4>
+                  <span class="chat-status" id="active-chat-sub">Has Active Story • Tap to View</span>
+                </div>
+              </div>
+
+              <!-- Injected Call Actions -->
+              <div class="zengram-call-panel">
+                <button id="btn-call-audio" class="zengram-call-action-btn" title="Start Voice Call">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                  </svg>
+                </button>
+                <button id="btn-call-video" class="zengram-call-action-btn accent" title="Start Video Call">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                  </svg>
+                </button>
+              </div>
+            </header>
+
+            <!-- Messages Thread -->
+            <div class="messages-container" id="messages-container">
+              <div class="msg-bubble incoming">
+                <p>Hey! Check out this laptop thermal analysis reel:</p>
+              </div>
+
+              <!-- Received Reel Card inside Chat -->
+              <div class="msg-reel-card" id="chat-reel-trigger">
+                <div class="reel-preview-cover">
+                  <div class="play-overlay">▶</div>
+                  <span class="reel-duration">0:32</span>
+                </div>
+                <div class="reel-meta">
+                  <span class="reel-creator">@techreview</span>
+                  <p class="reel-caption">140W RTX 4050 vs RTX 4060 Real Benchmark Test</p>
+                  <span class="reel-action-hint">👆 Click to watch in distraction-free player</span>
+                </div>
+              </div>
+
+              <div class="msg-bubble incoming">
+                <p>Let's hop on a call to discuss the project specs when you're free.</p>
+              </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-bar">
+              <input type="text" id="chat-input" placeholder="Message..." />
+              <button id="send-msg-btn">Send</button>
+            </div>
+          </div>
+
+          <!-- Profile Search View (Modal Pane) -->
+          <div id="search-pane" class="search-pane hidden">
+            <div class="search-header">
+              <input type="text" id="profile-search-input" placeholder="Search profiles..." value="ananya_sen" />
+              <button id="close-search-btn">✕</button>
+            </div>
+            <div class="search-results">
+              <div class="profile-card" id="searched-profile-card">
+                <div class="avatar-ring has-story">
+                  <div class="avatar-inner">A</div>
+                </div>
+                <div class="profile-details">
+                  <strong>Ananya Sen</strong>
+                  <span class="handle">@ananya_sen</span>
+                  <span class="story-tag">🟢 Active Story Available</span>
+                </div>
+                <button class="profile-action-btn" id="view-searched-story-btn">View Story</button>
+              </div>
+          </div>
+
+          <!-- Saved Posts View (Modal Pane) -->
+          <div id="saved-pane" class="search-pane hidden">
+            <div class="search-header">
+              <span style="font-weight:600; font-size:15px;">🔖 Aspirant Saved Items & Study Bookmarks</span>
+              <button id="close-saved-btn">✕</button>
+            </div>
+            <div class="search-results" style="padding:16px; display:flex; flex-direction:column; gap:12px;">
+              <div class="profile-card" id="saved-card-formula" style="cursor:pointer;">
+                <div class="avatar-ring" style="background:#0095f6;">
+                  <div class="avatar-inner">📐</div>
+                </div>
+                <div class="profile-details">
+                  <strong>GATE / JEE Formula Cheat-Sheet</strong>
+                  <span class="handle">Saved Educational Diagram (/p/formula_sheet)</span>
+                  <span class="story-tag" style="background:rgba(0,149,246,0.15); color:#0095f6;">✓ Direct Post View Allowed</span>
+                </div>
+                <button class="profile-action-btn" id="view-saved-post-btn">Open Post</button>
+              </div>
+
+              <div class="profile-card" id="saved-card-reel" style="cursor:pointer;">
+                <div class="avatar-ring" style="background:#f09433;">
+                  <div class="avatar-inner">🎬</div>
+                </div>
+                <div class="profile-details">
+                  <strong>Physics Concept Animation Reel</strong>
+                  <span class="handle">Saved Concept Video (/reel/physics_anim)</span>
+                  <span class="story-tag" style="background:rgba(39,201,63,0.15); color:#27c93f;">✓ Sandboxed Playback (No Doomscroll)</span>
+                </div>
+                <button class="profile-action-btn" id="view-saved-reel-btn">Watch Reel</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Story Viewer Modal -->
+  <div id="story-modal" class="modal hidden">
+    <div class="modal-scrim" id="story-scrim"></div>
+    <div class="story-box">
+      <div class="story-progress-bar"><div class="story-progress-fill"></div></div>
+      <div class="story-top">
+        <div class="story-user">
+          <div class="avatar-inner-mini" id="story-avatar-mini">R</div>
+          <span id="story-username">Rohan Sharma</span>
+        </div>
+        <button id="close-story-btn" class="modal-close">✕</button>
+      </div>
+      <div class="story-image-canvas">
+        <div class="story-graphic">
+          📸 Friend Story<br>
+          <small>Visible exclusively because you are in a direct conversation with them!</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features & Privacy Showcase Modal -->
+  <div id="showcase-modal" class="modal hidden">
+    <div class="modal-scrim" id="showcase-scrim"></div>
+    <div class="story-box" style="max-width: 680px; width: 95%; max-height: 90vh; overflow-y: auto; background: #121212; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 24px; color: #fff;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #262626; padding-bottom:14px; margin-bottom:16px;">
+        <h2 style="font-size:20px; font-weight:700; background:linear-gradient(45deg,#f09433,#dc2743,#bc1888); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+          🔒 ZenGram — Distraction-Free Instagram
+        </h2>
+        <button id="close-showcase-btn" style="background:none; border:none; color:#fff; font-size:24px; cursor:pointer;">✕</button>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div style="display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;">
+        <button class="control-btn active" id="tab-btn-features" style="padding:6px 14px; font-size:12px;">🎯 For Aspirants & Students</button>
+        <button class="control-btn" id="tab-btn-creators" style="padding:6px 14px; font-size:12px;">🎨 For Creators (Post & Ghost)</button>
+        <button class="control-btn" id="tab-btn-privacy" style="padding:6px 14px; font-size:12px;">🛡️ Privacy & Zero-Theft</button>
+        <button class="control-btn" id="tab-btn-downloads" style="padding:6px 14px; font-size:12px; background:#0095f6; color:#fff;">⬇️ Downloads & Install</button>
+      </div>
+
+      <!-- Tab 1: Aspirants -->
+      <div id="tab-content-features" style="line-height:1.6; font-size:13px; color:#d1d1d1;">
+        <h3 style="color:#fff; font-size:16px; margin-bottom:8px;">🎯 Engineered for Competitive Exam Focus</h3>
+        <p style="margin-bottom:12px;">Exam preparation (JEE, NEET, GATE, UPSC) requires deep concentration, but you still need Instagram to message peers, attend group study calls, or review bookmarked formula sheets.</p>
+        <ul style="padding-left:20px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px;">
+          <li><strong>Zero Feed & Zero Explore:</strong> The infinite algorithmic post feed and discover rabbit hole are 100% blocked.</li>
+          <li><strong>No Endless Reels Scroll:</strong> Reels feed is eradicated. If a study buddy sends a concept reel in chat, it opens in an isolated single-video player with no swipe-to-next!</li>
+          <li><strong>Saved Section Intact:</strong> Open your formula cheat-sheets and diagrams via <code>/username/saved/</code> and <code>/p/post_id</code> without distractions.</li>
+          <li><strong>Voice & Video Calling:</strong> Integrated WebRTC calling with hardware camera/mic access right inside chat headers.</li>
+        </ul>
+      </div>
+
+      <!-- Tab 2: Creators -->
+      <div id="tab-content-creators" class="hidden" style="line-height:1.6; font-size:13px; color:#d1d1d1;">
+        <h3 style="color:#fff; font-size:16px; margin-bottom:8px;">🎨 "Post & Ghost" for Serious Content Creators</h3>
+        <p style="margin-bottom:12px;">The greatest enemy of a creator is consuming other people's content instead of producing their own. ZenGram enables true creation without algorithmic exhaustion.</p>
+        <ul style="padding-left:20px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px;">
+          <li><strong>Publish Directly:</strong> Dedicated support for <code>/create</code> and native photo/video upload file pickers. Upload your reels, carousels, and stories cleanly.</li>
+          <li><strong>Client & Collab DMs:</strong> Manage sponsorship inquiries, collaborator messages, and audience replies in pure inbox mode.</li>
+          <li><strong>Zero Brain Rot:</strong> Never lose 45 minutes falling into your own explore feed while checking comments or DM analytics.</li>
+        </ul>
+      </div>
+
+      <!-- Tab 3: Privacy -->
+      <div id="tab-content-privacy" class="hidden" style="line-height:1.6; font-size:13px; color:#d1d1d1;">
+        <h3 style="color:#27c93f; font-size:16px; margin-bottom:8px;">🛡️ 100% Zero-Data-Theft Guarantee</h3>
+        <p style="margin-bottom:12px;">ZenGram is strictly client-side and completely open source. Anyone can inspect every single line of code in this repository.</p>
+        <div style="background:#1a1a1a; border-left:3px solid #27c93f; padding:12px; border-radius:4px; margin-bottom:14px;">
+          <p style="margin:0; font-size:12px;">✓ <strong>Direct Meta SSL Connection:</strong> 100% of your requests travel directly to official Instagram endpoints (<code>https://www.instagram.com</code>). No proxies, no relays.</p>
+          <p style="margin:6px 0 0 0; font-size:12px;">✓ <strong>Zero Middleman Servers:</strong> ZenGram operates entirely on your local machine / browser. We do NOT operate any server collecting credentials, cookies, tokens, or messages.</p>
+          <p style="margin:6px 0 0 0; font-size:12px;">✓ <strong>Client-Side DOM Interception Only:</strong> We simply remove the addictive algorithmic UI elements from the DOM and sandbox in-chat video links.</p>
+        </div>
+      </div>
+
+      <!-- Tab 4: Downloads -->
+      <div id="tab-content-downloads" class="hidden" style="line-height:1.6; font-size:13px; color:#d1d1d1;">
+        <h3 style="color:#fff; font-size:16px; margin-bottom:12px;">⬇️ Choose Your Platform</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div style="background:#1a1a1a; padding:14px; border-radius:10px; border:1px solid #333;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">🐧 Linux AppImage</strong>
+            <p style="font-size:11px; color:#888; margin-bottom:8px;">Self-contained executable for Ubuntu, Arch, Fedora, Debian.</p>
+            <a href="downloads/ZenGram-x86_64.AppImage" download class="profile-action-btn" style="display:inline-block; text-decoration:none; text-align:center;">Download AppImage (119MB)</a>
+          </div>
+
+          <div style="background:#1a1a1a; padding:14px; border-radius:10px; border:1px solid #333;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">🪟 Windows (1-Click)</strong>
+            <p style="font-size:11px; color:#888; margin-bottom:8px;">Double-click batch file. Auto-uses Edge app mode or Electron.</p>
+            <a href="downloads/ZenGram-Windows.bat" download class="profile-action-btn" style="display:inline-block; text-decoration:none; text-align:center;">Download .bat Launcher</a>
+          </div>
+
+          <div style="background:#1a1a1a; padding:14px; border-radius:10px; border:1px solid #333;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">⚡ Universal NPX Runner</strong>
+            <p style="font-size:11px; color:#888; margin-bottom:8px;">Run anywhere from command line:</p>
+            <code style="background:#000; padding:4px 8px; border-radius:4px; font-size:11px; display:block; color:#27c93f;">npx zengram</code>
+          </div>
+
+          <div style="background:#1a1a1a; padding:14px; border-radius:10px; border:1px solid #333;">
+            <strong style="color:#fff; display:block; margin-bottom:4px;">📱 Phone (Android & iOS)</strong>
+            <p style="font-size:11px; color:#888; margin-bottom:8px;">Zero-install PWA or transparent native Android code.</p>
+            <a href="../phone-pwa/index.html" class="profile-action-btn" style="display:inline-block; text-decoration:none; text-align:center;">Open Mobile PWA</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification for Blocked Actions -->
+  <div id="toast-banner" class="toast hidden"></div>
+
+  <script src="demo.js"></script>
+</body>
+</html>

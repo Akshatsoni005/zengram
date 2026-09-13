@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+desktop/node_modules/
+
+# Large binary files (>100MB blocked by GitHub without LFS)
+*.AppImage
+preview-demo/downloads/*.AppImage
+ZenGram.AppDir/
+squashfs-root/
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+*.swp

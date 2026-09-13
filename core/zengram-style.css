@@ -1,0 +1,258 @@
+/**
+ * ZenGram Stylesheet - Pure Distraction-Free Instagram Chat UI
+ */
+
+/* 1. Hide Distraction Elements */
+a[href="/"],
+a[href="/explore/"],
+a[href="/reels/"],
+div[role="navigation"] a[href="/"],
+div[role="navigation"] a[href="/explore/"],
+div[role="navigation"] a[href="/reels/"],
+footer,
+div[role="complementary"] {
+  display: none !important;
+}
+
+/* On Direct messages page, ensure chat area takes full focused space */
+div[role="main"] {
+  max-width: 100% !important;
+}
+
+/* 2. ZenGram Call Action Bar in Chat Header */
+.zengram-call-panel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  padding-right: 12px;
+  z-index: 99;
+}
+
+.zengram-call-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #efefef;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.zengram-call-action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.zengram-call-action-btn.accent {
+  background: #0095f6;
+  color: #fff;
+}
+
+.zengram-call-action-btn.accent:hover {
+  background: #1877f2;
+}
+
+/* 3. Modal / Dialog Scrim */
+.zengram-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 999990;
+}
+
+/* 4. In-Chat Reel Sandbox Modal */
+#zengram-reel-sandbox {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999991;
+}
+
+.zengram-modal-card {
+  position: relative;
+  z-index: 999995;
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 440px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.zengram-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.zengram-tag {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0095f6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#zengram-close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.zengram-video-frame {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  min-height: 480px;
+}
+
+.zengram-video-frame video,
+.zengram-video-frame iframe {
+  width: 100%;
+  height: 100%;
+  max-height: 600px;
+  border: none;
+}
+
+.zengram-card-bottom {
+  padding: 10px 14px;
+  font-size: 11px;
+  color: #8e8e8e;
+  text-align: center;
+  background: #181818;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 5. Call Initiation Dialog */
+#zengram-call-dialog {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999992;
+}
+
+.zengram-call-card {
+  position: relative;
+  z-index: 999996;
+  background: #1c1c1e;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 380px;
+  padding: 24px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.zengram-call-avatar {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 8px 16px rgba(220, 39, 67, 0.3);
+}
+
+.zengram-call-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.zengram-call-card p {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: #a0a0a0;
+}
+
+.zengram-call-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.zengram-primary-btn {
+  background: #0095f6;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.zengram-primary-btn:hover {
+  background: #1877f2;
+}
+
+.zengram-secondary-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 11px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.zengram-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.zengram-call-tips {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.zengram-call-tips p {
+  margin: 4px 0;
+  font-size: 11px;
+  color: #8e8e8e;
+}
+
+.zengram-dismiss-btn {
+  background: none;
+  border: none;
+  color: #ff3b30;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 12px;
+}

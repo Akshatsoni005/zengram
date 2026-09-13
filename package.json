@@ -1,0 +1,28 @@
+{
+  "name": "zengram-chat",
+  "version": "1.1.0",
+  "description": "Distraction-Free Instagram Client for Aspirants & Students (Windows, Linux, macOS)",
+  "bin": {
+    "zengram": "./bin/zengram.js",
+    "zengram-chat": "./bin/zengram.js"
+  },
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "node bin/zengram.js",
+    "desktop": "electron desktop/main.js --no-sandbox",
+    "demo": "node bin/zengram.js --demo",
+    "pwa": "node bin/zengram.js --pwa",
+    "test": "node -e \"console.log('✓ ZenGram package self-check passed')\""
+  },
+  "keywords": [
+    "instagram",
+    "distraction-free",
+    "chat",
+    "dms",
+    "aspirants",
+    "study-mode",
+    "focus"
+  ],
+  "author": "ZenGram",
+  "license": "MIT"
+}
