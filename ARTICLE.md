@@ -49,6 +49,11 @@ flowchart LR
 - **Saved Section Fully Accessible:** Your bookmarked revision diagrams, physics notes, and formula sheets (`/username/saved/` and `/p/shortcode/`) open cleanly without feed distractions.
 - **Hardware-Accelerated Calling:** WebRTC calling buttons injected directly into chat headers let you hop on voice and video study sessions with peers.
 
+<div align="center">
+  <img src="assets/zengram-chat-sandbox.png" alt="ZenGram In-Chat Video Sandbox" width="360" style="border-radius:14px;" />
+  <p><em>▲ <strong>In-Chat Single-Reel Sandbox:</strong> Only sent videos play inside direct chat threads. Playback halts immediately when finished ("Stops here / No endless scroll").</em></p>
+</div>
+
 ---
 
 ### 2. 🎨 For Content Creators: The "Post & Ghost" Workflow

@@ -23,6 +23,11 @@ A minimal, distraction-free Instagram client engineered exclusively for **Direct
 | **Stories** | Global top tray tempting you to click | **Filtered**: visible **only** for chat partner or profile search |
 | **Data Privacy** | 3rd-party clients often steal cookies/tokens | **100% Zero-Data-Collection**: runs locally on device, 0 telemetry, authenticates strictly with official Meta SSL servers |
 
+<div align="center">
+  <img src="assets/zengram-chat-sandbox.png" alt="In-Chat Single-Reel Sandbox" width="340" style="border-radius:12px;" />
+  <p><em>▲ <strong>In-Chat Single-Reel Sandbox:</strong> Only sent videos play inside thread. Playback halts immediately when finished ("Stops here / No endless scroll").</em></p>
+</div>
+
 ---
 
 ## 📱 How to Use on Phone (Android & iOS)
