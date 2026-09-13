@@ -13,5 +13,5 @@ squashfs-root/
 Thumbs.db
 *.log
 .vscode/
-.idea/
-*.swp
+# Android build
+mobile-android/build/

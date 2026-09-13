@@ -7,15 +7,18 @@ TOOLS_DIR="$HOME/scratch/android_build"
 APP_DIR="$DIR/app/src/main"
 OUT_DIR="$DIR/build"
 
-mkdir -p "$OUT_DIR/classes" "$OUT_DIR/res_compiled"
+mkdir -p "$OUT_DIR/classes" "$OUT_DIR/res_compiled" "$APP_DIR/assets"
+cp -f "$DIR/../core/zengram-engine.js" "$APP_DIR/assets/"
+cp -f "$DIR/../core/zengram-style.css" "$APP_DIR/assets/"
 
 echo "==> 1. Compiling resources..."
 "$TOOLS_DIR/aapt2" compile --dir "$APP_DIR/res" -o "$OUT_DIR/res_compiled/res.zip"
 
-echo "==> 2. Linking APK package..."
+echo "==> 2. Linking APK package with assets..."
 "$TOOLS_DIR/aapt2" link \
   -I "$TOOLS_DIR/android.jar" \
   --manifest "$APP_DIR/AndroidManifest.xml" \
+  -A "$APP_DIR/assets" \
   -o "$OUT_DIR/base.apk" \
   "$OUT_DIR/res_compiled/res.zip"
 

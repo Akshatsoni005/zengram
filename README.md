@@ -18,7 +18,8 @@ A minimal, distraction-free Instagram client engineered exclusively for **Direct
 | **Reels Tab** | Addictive vertical video swipe loop | **Completely blocked** |
 | **Reels Sent in Chat** | Clicking opens infinite Reels feed | **Plays inside isolated single-reel sandbox** |
 | **Saved Section** | Often distracts with reel discovery | **Clean Access Allowed**: view study notes & diagrams; reels play only in single sandbox |
-| **Content Creators** | Feeds distract creators during publishing | **Post & Ghost Allowed**: `/create` path & media uploads work cleanly without feed exposure |
+| **Reels Posting** | Sucks creators into feed & recommendations | **Insta-App-Like Reel Studio**: record with camera or pick gallery video, format 9:16 & publish; auto-deflects back to DMs immediately ("Post & Ghost") |
+| **View-Once Media** | Web displays unclickable *"Open app to view"* | **Fully Unlocked**: opens in ZenGram sandbox with permanent access (no countdown timers) + 1-tap download to Gallery |
 | **Voice & Video Calling** | Disabled / missing on Instagram Web | **Fully enabled** (WebRTC hardware-accelerated calling) |
 | **Stories** | Global top tray tempting you to click | **Filtered**: visible **only** for chat partner or profile search |
 | **Data Privacy** | 3rd-party clients often steal cookies/tokens | **100% Zero-Data-Collection**: runs locally on device, 0 telemetry, authenticates strictly with official Meta SSL servers |
@@ -46,7 +47,10 @@ Since Instagram updates frequently break third-party binary patchers (like ReVan
 
 ### Method 3: Standalone Android APK (Dedicated App)
 - Pre-built signed APK: [**⬇️ Download ZenGram.apk (v1.1.0)**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram.apk) *(17 KB, Android 7.0+)*
-- Source code in [`mobile-android/`](mobile-android/): 100 lines of standard Java ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)).
+- Direct Web Download: [**🌐 theaiserver.in/zengram**](https://www.theaiserver.in/zengram)
+- Source code in [`mobile-android/`](mobile-android/): Native Java ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)).
+- **🎬 Insta-App-Like Reel Studio:** Floating action button lets you record Reels with camera or pick from gallery, format in 9:16, add captions, and publish. Once shared, ZenGram automatically routes back to `/direct/inbox/` ("Post & Ghost").
+- **👁️ View-Once Disappearing Media Unlocked:** Ephemeral photos & videos that usually fail on web now open in an isolated sandbox with permanent viewing (no countdown timers) and 1-tap download directly to your phone's Gallery!
 - Auto-deflects explore/reels navigation back to `/direct/inbox/`, unlocks WebRTC calling, and supports creator photo/video file uploads.
 
 ---

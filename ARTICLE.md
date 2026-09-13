@@ -99,14 +99,15 @@ If you want the feed completely stripped and the single-reel sandbox active insi
 
 ### 3. 📦 Method 3: Standalone Android APK (Dedicated App)
 For Android users who prefer an isolated, dedicated app:
+- **🎬 Insta-App-Like Reel Posting (Post & Ghost):** Includes a dedicated floating Reel Studio button. Choose any video from your gallery or record on the fly with your camera, trim, format in 9:16, add captions, and share. The instant your Reel publishes, ZenGram auto-deflects you straight back to `/direct/inbox/`—so you build your audience without ever falling into the doom-scroll trap.
+- **👁️ View-Once Disappearing Media Unlocked:** Ephemeral "view once" photos and videos in DMs (which normally show *"Sent a photo. Open the Instagram app to view"* and refuse to open in web views) are unlocked by ZenGram. View them with permanent access (zero self-destruct timers) and save them directly to your phone's Gallery with one tap.
 - **Zero-Telemetry Native Code:** Built on standard Android SDK ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)) with direct Meta SSL connections.
-- **Auto-Deflection:** Any accidental taps on explore or reels tabs are instantly redirected back to `/direct/inbox/`.
 - **Calling & File Uploads:** Hardware WebRTC camera/microphone access unlocked, plus `WebChromeClient.onShowFileChooser` for "Post & Ghost" creator uploads.
 
 > [!TIP]
 > **Direct APK Download:**
 > - [⬇️ Download ZenGram.apk (v1.1.0)](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram.apk) *(17 KB, Android 7.0+)*
-> - [🌐 Download from THE AI SERVER](https://www.theaiserver.in/downloads/ZenGram.apk)
+> - [🌐 Download from THE AI SERVER (`theaiserver.in/zengram`)](https://www.theaiserver.in/zengram)
 
 ---
 
