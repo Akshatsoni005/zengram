@@ -45,7 +45,7 @@ Since Instagram updates frequently break third-party binary patchers (like ReVan
 - Completely strips explore grids and reels tabs with client-side CSS & DOM routing.
 
 ### Method 3: Standalone Android APK (Dedicated App)
-- Pre-built signed APK: [**⬇️ Download ZenGram.apk (v1.1.0)**](ZenGram.apk) *(17 KB, Android 7.0+)*
+- Pre-built signed APK: [**⬇️ Download ZenGram.apk (v1.1.0)**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram.apk) *(17 KB, Android 7.0+)*
 - Source code in [`mobile-android/`](mobile-android/): 100 lines of standard Java ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)).
 - Auto-deflects explore/reels navigation back to `/direct/inbox/`, unlocks WebRTC calling, and supports creator photo/video file uploads.
 
@@ -53,7 +53,30 @@ Since Instagram updates frequently break third-party binary patchers (like ReVan
 
 ## 💻 How to Use on Web / Desktop
 
-### Method 1: Universal NPX / NPM Launcher (Windows, Linux, macOS)
+| Platform | Recommended Setup | Download Link / Command |
+| :--- | :--- | :--- |
+| **🪟 Windows (10/11)** | **1-Click Portable Package** | [⬇️ Download ZenGram-Windows.zip](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-Windows.zip) (13 KB) |
+| **🐧 Linux** | **Standalone AppImage** | [⬇️ Download ZenGram-x86_64.AppImage](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-x86_64.AppImage) (119 MB) |
+| **📱 Android** | **Standalone Signed APK** | [⬇️ Download ZenGram.apk](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram.apk) (17 KB) |
+| **⚡ Universal (All OS)** | **NPX / Node CLI Runner** | `npx zengram` or `npm start` |
+| **🍏 macOS** | **Chrome App Mode or NPX** | `npx zengram` |
+| **🌐 Browser** | **Unpacked Extension or Userscript** | Load [`web-extension/`](web-extension/) or install [`zengram.user.js`](userscript/zengram.user.js) |
+
+### Method 1: 1-Click Windows Launcher (`ZenGram-Windows.zip`)
+1. Download [**`ZenGram-Windows.zip`**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-Windows.zip) and extract it.
+2. Double-click **`ZenGram-Windows.bat`**.
+*Zero setup needed*: If Electron is installed, it runs the full isolated client; otherwise it instantly opens a dedicated standalone app window using Windows' built-in Microsoft Edge!
+
+### Method 2: Standalone Linux AppImage (`ZenGram-x86_64.AppImage`)
+1. Download [**`ZenGram-x86_64.AppImage`**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-x86_64.AppImage) (or [`ZenGram-Linux.sh`](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-Linux.sh)).
+2. Make it executable and run:
+```bash
+chmod +x ZenGram-x86_64.AppImage
+./ZenGram-x86_64.AppImage
+```
+Self-contained with all dependencies and sandbox switches included.
+
+### Method 3: Universal NPX / NPM Launcher (Windows, Linux, macOS)
 Run directly from terminal without manual configuration:
 ```bash
 # Launch ZenGram Desktop Client (Auto-detects Electron or native app mode)
@@ -64,27 +87,6 @@ npm start
 # Test the live interactive simulator locally:
 npx zengram --demo
 ```
-
-### Method 2: 1-Click Windows Launcher (`ZenGram-Windows.bat`)
-On Windows (10/11), double-click:
-```cmd
-ZenGram-Windows.bat
-```
-*Zero setup needed*: If Electron is installed, it runs the full isolated client; otherwise it instantly opens a dedicated standalone app window using Windows' built-in Microsoft Edge!
-
-### Method 3: Standalone Linux AppImage (`ZenGram-x86_64.AppImage`)
-Direct, portable standalone executable for any Linux distribution:
-```bash
-chmod +x ZenGram-x86_64.AppImage
-./ZenGram-x86_64.AppImage
-```
-Self-contained with all dependencies and sandbox switches included.
-
-### Method 4: 1-Click Linux / macOS Shell Script (`./ZenGram-Linux.sh`)
-```bash
-./ZenGram-Linux.sh
-```
-Runs the client with `--no-sandbox` pre-configured.
 
 ### Method 5: Chrome / Brave / Edge / Opera Extension (Unpacked)
 1. Open your Chromium browser and go to: `chrome://extensions`

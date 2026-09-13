@@ -105,25 +105,25 @@ For Android users who prefer an isolated, dedicated app:
 
 > [!TIP]
 > **Direct APK Download:**
-> - [⬇️ Download ZenGram.apk (v1.1.0)](ZenGram.apk) *(17 KB, Android 7.0+)*
+> - [⬇️ Download ZenGram.apk (v1.1.0)](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram.apk) *(17 KB, Android 7.0+)*
 > - [🌐 Download from THE AI SERVER](https://www.theaiserver.in/downloads/ZenGram.apk)
 
 ---
 
 ## 💻 Desktop & PC Setup (Windows, Linux, macOS)
 
-| Platform | Recommended Setup | Launch Command / Method |
+| Platform | Recommended Setup | Download Link / Command |
 | :--- | :--- | :--- |
-| **🪟 Windows (10/11)** | **1-Click Batch Launcher** (Uses native Edge app mode or Electron) | Double-click [`ZenGram-Windows.bat`](file:///home/akshat/zengram-insta-chat/ZenGram-Windows.bat) or `zengram.bat` |
-| **⚡ Universal (All OS)** | **NPX / Node CLI Runner** (Stdlib, zero config) | `npx zengram` or `npm start` |
-| **🐧 Linux** | **Standalone AppImage** (Portable, pre-built, runs on any distro) | `chmod +x ZenGram-x86_64.AppImage && ./ZenGram-x86_64.AppImage` |
+| **🪟 Windows (10/11)** | **1-Click Portable Package** | [⬇️ Download ZenGram-Windows.zip](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-Windows.zip) (13 KB) |
+| **🐧 Linux** | **Standalone AppImage** | [⬇️ Download ZenGram-x86_64.AppImage](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-x86_64.AppImage) (119 MB) |
+| **⚡ Universal (All OS)** | **NPX / Node CLI Runner** | `npx zengram` or `npm start` |
 | **🍏 macOS** | **Chrome App Mode or NPX** | `npx zengram` |
-| **🌐 Browser** | **Unpacked Extension or Userscript** | Load [`web-extension/`](file:///home/akshat/zengram-insta-chat/web-extension/) or install [`zengram.user.js`](file:///home/akshat/zengram-insta-chat/userscript/zengram.user.js) |
+| **🌐 Browser** | **Unpacked Extension or Userscript** | Load [`web-extension/`](web-extension/) or install [`zengram.user.js`](userscript/zengram.user.js) |
 
 ---
 
 ### Step-by-Step Windows Guide (30 Seconds):
-1. Download or clone this repository.
+1. Download [**`ZenGram-Windows.zip`**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-Windows.zip) and extract it.
 2. Double-click **`ZenGram-Windows.bat`**.
 3. **What happens under the hood:**
    - If you have Node/Electron installed, it launches the isolated client window.
@@ -133,7 +133,7 @@ For Android users who prefer an isolated, dedicated app:
 ---
 
 ### Step-by-Step Linux Guide:
-1. Download [`ZenGram-x86_64.AppImage`](file:///home/akshat/zengram-insta-chat/ZenGram-x86_64.AppImage).
+1. Download [**`ZenGram-x86_64.AppImage`**](https://github.com/Akshatsoni005/zengram/releases/download/v1.1.0/ZenGram-x86_64.AppImage).
 2. Make it executable and run:
    ```bash
    chmod +x ZenGram-x86_64.AppImage
