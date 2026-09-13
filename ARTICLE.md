@@ -78,31 +78,35 @@ Many third-party Instagram mod APKs and shady wrappers route user traffic throug
 
 ---
 
-## 📱 Mobile Setup: iPhone vs. Android (What's Best for Society?)
+## 📱 Mobile Setup: 3 Tested Ways (Android & iPhone)
 
-### 🍎 Why Option A (Standalone PWA) is the Best Choice for iPhone
-For iOS users, third-party binary patchers (like ReVanced) do not exist, Apple bans sideloading modded apps, and iOS browsers do not support desktop extensions. 
+Since Instagram updates frequently break third-party binary patchers (like ReVanced), ZenGram provides three durable, 100% open-source mobile methods:
 
-**The Standalone PWA is unequivocally the cleanest, most resilient choice:**
-1. Open Safari on your iPhone and visit your hosted ZenGram URL (or open `phone-pwa/index.html`).
-2. Tap the **Share** button (box with arrow pointing up) at the bottom.
-3. Scroll down and tap **"Add to Home Screen"**.
-4. Tap **Add**.
-
-**Why this is a win for society:**
-- Launches in full standalone mode with **zero browser address bars**.
-- Authentic Instagram login session persists securely in Apple's native WebKit Keychain.
-- 100% immune to Instagram app updates that constantly break patched APKs.
-- Uses zero extra battery or RAM compared to heavy native background processes.
+### 1. ⚡ Method 1: Instant Standalone PWA (iOS & Android — 15 Seconds, Zero-Install)
+- **On iPhone (iOS):** Open Safari → Navigate to `https://www.instagram.com/direct/inbox/` → Tap **Share** (box with upward arrow) → Tap **"Add to Home Screen"** → Name it **ZenGram** and tap Add.
+- **On Android:** Open Chrome or Brave → Go to `https://www.instagram.com/direct/inbox/` → Tap `⋮` (Menu) → Tap **"Install app"** (or *"Add to Home screen"*).
+- **Why this works:** Full-screen borderless window (no browser address bars), authentic Instagram session persists in your device's native Keychain, zero extra battery consumption, and 100% immune to Instagram updates.
 
 ---
 
-### 🤖 For Android Users: Two Great Choices
-1. **Option A (Zero-Install PWA):** Open in Chrome → Tap `⋮` (Menu) → **"Install app"** or **"Add to Home screen"**. Done in 5 seconds.
-2. **Option B (Transparent Native Android App):** 
-   - Located in [`mobile-android/`](file:///home/akshat/zengram-insta-chat/mobile-android/).
-   - Written in 100 lines of standard Android SDK Java ([`MainActivity.java`](file:///home/akshat/zengram-insta-chat/mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)).
-   - Features `WebChromeClient.onShowFileChooser` for creator photo/video uploads and hardware camera/mic permissions for audio/video calling.
+### 2. 🛡️ Method 2: Full Element-Blocking via Userscript (Android & iOS)
+If you want the feed completely stripped and the single-reel sandbox active inside your mobile browser:
+- **On Android:** Install **Kiwi Browser** or **Firefox Mobile** (from Play Store) → Install **Tampermonkey** → Tap to install [`zengram.user.js`](userscript/zengram.user.js).
+- **On iPhone:** Install **Orion Browser** (App Store WebKit browser with extension support) → Add Tampermonkey → Install [`zengram.user.js`](userscript/zengram.user.js).
+- **Result:** Complete eradication of explore feeds and Reels swipe loops on mobile.
+
+---
+
+### 3. 📦 Method 3: Standalone Android APK (Dedicated App)
+For Android users who prefer an isolated, dedicated app:
+- **Zero-Telemetry Native Code:** Built on standard Android SDK ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)) with direct Meta SSL connections.
+- **Auto-Deflection:** Any accidental taps on explore or reels tabs are instantly redirected back to `/direct/inbox/`.
+- **Calling & File Uploads:** Hardware WebRTC camera/microphone access unlocked, plus `WebChromeClient.onShowFileChooser` for "Post & Ghost" creator uploads.
+
+> [!TIP]
+> **Direct APK Download:**
+> - [⬇️ Download ZenGram.apk (v1.1.0)](ZenGram.apk) *(17 KB, Android 7.0+)*
+> - [🌐 Download from THE AI SERVER](https://www.theaiserver.in/downloads/ZenGram.apk)
 
 ---
 

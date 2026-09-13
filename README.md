@@ -30,27 +30,24 @@ A minimal, distraction-free Instagram client engineered exclusively for **Direct
 
 ---
 
-## 📱 How to Use on Phone (Android & iOS)
+## 📱 How to Use on Mobile (Android & iOS)
 
-Since Instagram updates frequently break third-party binary patchers (like ReVanced), ZenGram provides two resilient, 100% open-source mobile methods:
+Since Instagram updates frequently break third-party binary patchers (like ReVanced), ZenGram provides three resilient, 100% open-source mobile methods:
 
-### Option 1: Zero-Install Standalone PWA (Recommended for Android & iOS)
-No APK compile or root required:
-1. Open the [phone-pwa](file:///home/akshat/zengram-insta-chat/phone-pwa/index.html) or host it on your site.
-2. Tap **Share** (iOS Safari) or **Menu ⋮** (Android Chrome) → **Add to Home Screen**.
-3. It installs as a native, full-screen app icon that opens directly into Direct Messages with zero browser address bar!
+### Method 1: Zero-Install Standalone PWA (iOS & Android — 15 Seconds)
+- **iOS (iPhone):** Open Safari → Visit `https://www.instagram.com/direct/inbox/` → Tap **Share** → **Add to Home Screen** → Name **ZenGram**.
+- **Android:** Open Chrome or Brave → Visit `https://www.instagram.com/direct/inbox/` → Tap **Menu ⋮** → **Install app** (or *"Add to Home screen"*).
+- Runs fullscreen with zero browser address bars, authenticates via native OS Keychain, and uses zero background battery.
 
-### Option 2: Transparent Native Android WebView Client (`mobile-android/`)
-Inside [mobile-android/](file:///home/akshat/zengram-insta-chat/mobile-android/):
-- **100% Auditable Java Source:** Inspect [MainActivity.java](file:///home/akshat/zengram-insta-chat/mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java) — zero trackers, zero analytics, zero background services.
-- **Creator File Uploads:** Implements `WebChromeClient.onShowFileChooser` so creators can upload photos, carousels, and reels from Android photo storage directly.
-- **Hardware WebRTC Calling:** Auto-grants `CAMERA` and `RECORD_AUDIO` inside `onPermissionRequest`.
-- **Smart Back Handling:** Pressing Android back button inside a chat or saved post safely returns to DM inbox instead of exiting or popping into a feed.
+### Method 2: Mobile Browser Userscript (Kiwi Browser / Firefox / Orion)
+- **Android:** Install **Kiwi Browser** or **Firefox** → Install **Tampermonkey** → Tap to install [`zengram.user.js`](userscript/zengram.user.js).
+- **iOS:** Install **Orion Browser** (App Store) → Add Tampermonkey → Install [`zengram.user.js`](userscript/zengram.user.js).
+- Completely strips explore grids and reels tabs with client-side CSS & DOM routing.
 
-### Option 3: Mobile Extension (Kiwi Browser / Firefox Android)
-1. Install **Kiwi Browser** or **Firefox Nightly** on Android.
-2. Load `web-extension` or install `userscript/zengram.user.js` via Tampermonkey.
-3. Add `instagram.com` to Home Screen.
+### Method 3: Standalone Android APK (Dedicated App)
+- Pre-built signed APK: [**⬇️ Download ZenGram.apk (v1.1.0)**](ZenGram.apk) *(17 KB, Android 7.0+)*
+- Source code in [`mobile-android/`](mobile-android/): 100 lines of standard Java ([`MainActivity.java`](mobile-android/app/src/main/java/com/zengram/chat/MainActivity.java)).
+- Auto-deflects explore/reels navigation back to `/direct/inbox/`, unlocks WebRTC calling, and supports creator photo/video file uploads.
 
 ---
 

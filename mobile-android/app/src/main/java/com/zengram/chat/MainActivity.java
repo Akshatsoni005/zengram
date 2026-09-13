@@ -14,8 +14,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
 
 /**
  * ZenGram Android Client — 100% Open-Source & Transparent
@@ -61,9 +60,12 @@ public class MainActivity extends Activity {
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
-                runOnUiThread(() -> {
-                    // Auto-grant Camera and Microphone for video/voice calling
-                    request.grant(request.getResources());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Auto-grant Camera and Microphone for video/voice calling
+                        request.grant(request.getResources());
+                    }
                 });
             }
 
@@ -119,9 +121,9 @@ public class MainActivity extends Activity {
     }
 
     private void checkMediaPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
                     new String[]{Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO},
                     PERMISSION_REQUEST_CODE);
         }
