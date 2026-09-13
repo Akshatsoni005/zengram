@@ -3,23 +3,13 @@ package com.zengram.chat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -27,8 +17,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -40,299 +28,286 @@ import java.net.URL;
 
 /**
  * ZenGram Android Client — 100% Open-Source & Transparent
- * 
- * New Features:
- * - Insta-App-Like Reel Posting (Quick Reel Studio, Camera Recording, Video Picker)
- * - View-Once Disappearing Media Unlocking (Permanent viewing, No timers, Download to Gallery)
- * - Direct Messages & Calls only (Blocks Home Feed, Explore, Endless Reels scroll)
- * - Saved Section enabled for study notes & diagrams
- * - Creator Upload Support (Post & Ghost flow)
- * - WebRTC Audio & Video Calling auto-permission handling
- * - Zero Telemetry: 100% direct connection to official Instagram SSL servers
+ *
+ * Features:
+ * - Direct Messages & Calls only (no feed, no explore, no endless reels)
+ * - Single-reel sandbox: sent reels play once, then return to inbox; no swipe-to-next
+ * - View-Once media unlocked: permanent view + 1-tap gallery save
+ * - Creator Post & Ghost: /create flow stays isolated; auto-deflects after publish
+ * - WebRTC Voice & Video Calling (hardware accelerated)
+ * - Saved section access (study notes, formula sheets)
+ * - Zero telemetry: direct Meta SSL connection only
  */
 public class MainActivity extends Activity {
 
     private WebView webView;
     private ValueCallback<Uri[]> filePathCallback;
-    private static final String INBOX_URL = "https://www.instagram.com/direct/inbox/";
-    private static final int PERMISSION_REQUEST_CODE = 101;
-    private static final int FILE_CHOOSER_RESULT_CODE = 102;
-    private static final int REEL_VIDEO_PICK_CODE = 103;
-    private static final int REEL_CAMERA_CAPTURE_CODE = 104;
 
-    private TextView postReelFab;
+    private static final String INBOX_URL        = "https://www.instagram.com/direct/inbox/";
+    private static final int PERMISSION_CODE      = 101;
+    private static final int FILE_CHOOSER_CODE    = 102;
+
+    // -------------------------------------------------------------------
+    // JS injected whenever a /reel/<shortcode>/ page finishes loading.
+    // Kills the continuous scroll / swipe-to-next and pauses the video
+    // once it plays once so the experience stays in a locked single-reel.
+    // -------------------------------------------------------------------
+    private static final String REEL_LOCK_JS =
+        "(function(){" +
+        "  var __zg_locked = false;" +
+        "  function lockReel(){" +
+        "    if(__zg_locked) return;" +
+        "    __zg_locked = true;" +
+        // Prevent all touch-based swipe propagation on the reel container
+        "    var stopEvt = function(e){ e.stopPropagation(); e.stopImmediatePropagation(); };" +
+        "    document.addEventListener('touchmove',  stopEvt, {capture:true, passive:false});" +
+        "    document.addEventListener('wheel',      stopEvt, {capture:true, passive:false});" +
+        "    document.addEventListener('scroll',     stopEvt, {capture:true});" +
+        // Kill Instagram's own swipe handlers attached to reel containers
+        "    var selectors = [" +
+        "      'div[class*=\"x1cy8zhl\"]','div[class*=\"x6s0dn4\"]'," +
+        "      'div[data-visualcompletion]','section','main'," +
+        "      'article','div[class*=\"Reels\"]','div[class*=\"reel\"]'" +
+        "    ];" +
+        "    selectors.forEach(function(sel){" +
+        "      try{" +
+        "        document.querySelectorAll(sel).forEach(function(el){" +
+        "          el.style.overflow = 'hidden';" +
+        "          el.style.touchAction = 'none';" +
+        "          var clone = el.cloneNode(true);" +
+        "          if(el.parentNode){ el.parentNode.replaceChild(clone, el); }" +
+        "        });" +
+        "      }catch(e){}" +
+        "    });" +
+        // When the video ends, return to inbox instead of auto-playing the next reel
+        "    var patchVideo = function(){" +
+        "      document.querySelectorAll('video').forEach(function(v){" +
+        "        if(v.__zg_patched) return;" +
+        "        v.__zg_patched = true;" +
+        "        v.loop = false;" +
+        "        v.addEventListener('ended', function(){" +
+        "          window.ZenGramNative && ZenGramNative.onReelEnded();" +
+        "        });" +
+        "      });" +
+        "    };" +
+        "    patchVideo();" +
+        "    var obs = new MutationObserver(patchVideo);" +
+        "    obs.observe(document.body, {childList:true, subtree:true});" +
+        // Hide the suggested reels sidebar / bottom row that Instagram injects
+        "    var css = document.createElement('style');" +
+        "    css.textContent = [" +
+        "      'div[class*=\"suggested\"]{ display:none!important; }'," +
+        "      'div[class*=\"Related\"]{ display:none!important; }'," +
+        "      'div[class*=\"MoreFrom\"]{ display:none!important; }'," +
+        "      'a[href=\"/reels/\"]{ display:none!important; }'," +
+        "      'section > div > div:nth-child(n+2){ display:none!important; }'" +
+        "    ].join('');" +
+        "    document.head.appendChild(css);" +
+        "  }" +
+        "  if(document.readyState==='loading'){" +
+        "    document.addEventListener('DOMContentLoaded', lockReel);" +
+        "  } else { lockReel(); }" +
+        "  setTimeout(lockReel, 800);" +
+        "})();";
+
+    // -------------------------------------------------------------------
+    // Base route-guard JS injected on every page load.
+    // Loads the full engine from assets when available, otherwise falls back
+    // to an inline minimal guard (no reel sandbox, no view-once).
+    // -------------------------------------------------------------------
+    private static final String GUARD_JS_FALLBACK =
+        "(function(){" +
+        "  var INB='https://www.instagram.com/direct/inbox/';" +
+        "  var p=window.location.pathname;" +
+        "  if(p==='/'||p.startsWith('/explore')||(p.startsWith('/reels')&&!p.startsWith('/reel/'))){" +
+        "    window.location.replace(INB);" +
+        "  }" +
+        "  var s=document.createElement('style');" +
+        "  s.textContent='a[href=\"/\"],a[href=\"/explore/\"],a[href=\"/reels/\"],div[role=\"complementary\"]{display:none!important}';" +
+        "  document.head&&document.head.appendChild(s);" +
+        "})();";
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Auto-request Camera, Audio, and Storage permissions
         checkRequiredPermissions();
 
-        // 1. Root FrameLayout holding WebView and Floating Action Button
-        FrameLayout rootLayout = new FrameLayout(this);
-
         webView = new WebView(this);
-        rootLayout.addView(webView, new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
+        setContentView(webView);
 
-        // 2. Native Floating Action Button for "🎬 Post Reel"
-        postReelFab = new TextView(this);
-        postReelFab.setText("🎬 Post Reel");
-        postReelFab.setTextColor(Color.WHITE);
-        postReelFab.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        postReelFab.setTypeface(Typeface.DEFAULT_BOLD);
-        postReelFab.setGravity(Gravity.CENTER);
-        postReelFab.setPadding(dpToPx(16), dpToPx(10), dpToPx(16), dpToPx(10));
+        configureWebSettings();
 
-        // Instagram signature gradient background
-        GradientDrawable fabBg = new GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                new int[]{0xFFF09433, 0xFFE6683C, 0xFFDC2743, 0xFFCC2366, 0xFFBC1888}
-        );
-        fabBg.setCornerRadius(dpToPx(24));
-        postReelFab.setBackground(fabBg);
-        postReelFab.setElevation(dpToPx(8));
-
-        FrameLayout.LayoutParams fabParams = new FrameLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-        );
-        fabParams.gravity = Gravity.BOTTOM | Gravity.END;
-        fabParams.bottomMargin = dpToPx(24);
-        fabParams.rightMargin = dpToPx(18);
-        rootLayout.addView(postReelFab, fabParams);
-
-        postReelFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showReelCreatorDialog();
-            }
-        });
-
-        setContentView(rootLayout);
-
-        // 3. Configure WebSettings
-        WebSettings settings = webView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDomStorageEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setSupportZoom(false);
-        settings.setBuiltInZoomControls(false);
-        settings.setAllowFileAccess(true);
-        settings.setAllowContentAccess(true);
-        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
-
-        // Modern Mobile Chrome User-Agent (Strips 'Version/4.0' to enable camera, reels upload, and view-once streaming)
-        settings.setUserAgentString("Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36");
-
-        // Expose Native Bridge for View-Once photo saving and Reel picker
         webView.addJavascriptInterface(new ZenGramNativeBridge(), "ZenGramNative");
 
-        // 4. WebChromeClient handles WebRTC calling permissions & Creator File Uploads
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Auto-grant Camera and Microphone for video/voice calling
+                    @Override public void run() {
                         request.grant(request.getResources());
                     }
                 });
             }
 
-            // Creator Support: Enables posting photos/reels/stories without opening feed
             @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                if (MainActivity.this.filePathCallback != null) {
-                    MainActivity.this.filePathCallback.onReceiveValue(null);
-                }
-                MainActivity.this.filePathCallback = filePathCallback;
-
-                Intent intent = fileChooserParams.createIntent();
+            public boolean onShowFileChooser(WebView wv,
+                    ValueCallback<Uri[]> cb,
+                    FileChooserParams params) {
+                if (filePathCallback != null) filePathCallback.onReceiveValue(null);
+                filePathCallback = cb;
                 try {
-                    startActivityForResult(intent, FILE_CHOOSER_RESULT_CODE);
+                    startActivityForResult(params.createIntent(), FILE_CHOOSER_CODE);
                 } catch (Exception e) {
-                    MainActivity.this.filePathCallback = null;
+                    filePathCallback = null;
                     return false;
                 }
                 return true;
             }
         });
 
-        // 5. WebViewClient enforces Distraction-Free routing & injects ZenGram Engine
         webView.setWebViewClient(new WebViewClient() {
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Uri uri = Uri.parse(url);
                 String path = uri.getPath();
                 if (path == null) path = "";
 
-                // Explicitly allowed: Saved section, DMs, Creator Reel/Post upload, Single post, Stories of contacts
-                if (path.contains("/saved") || path.startsWith("/direct") || path.startsWith("/create") || path.startsWith("/p/") || path.startsWith("/stories/")) {
-                    // Temporarily hide FAB when in creation studio to leave full editing space
-                    if (path.startsWith("/create")) {
-                        postReelFab.setVisibility(View.GONE);
-                    } else {
-                        postReelFab.setVisibility(View.VISIBLE);
-                    }
-                    return false;
-                }
-
-                // If user was creating a post and got redirected to home / profile, return to inbox! (Post & Ghost)
-                if (path.equals("/") || path.startsWith("/explore") || path.equals("/reels") || path.equals("/reels/")) {
+                // ---- Strict block: home feed, explore, endless reels tab ----
+                if (path.equals("/") || path.startsWith("/explore") ||
+                        path.equals("/reels") || path.equals("/reels/")) {
                     view.loadUrl(INBOX_URL);
-                    postReelFab.setVisibility(View.VISIBLE);
                     return true;
                 }
 
+                // ---- Single-reel: allowed, onPageFinished and engine enforce the lock ----
+                if (path.startsWith("/reel/") || path.contains("/reel/")) {
+                    return false;
+                }
+
+                // ---- Allow: DMs, saved, create/upload, single post, stories, accounts ----
+                if (path.startsWith("/direct") || path.startsWith("/p/") ||
+                        path.contains("/saved")  || path.startsWith("/create") ||
+                        path.startsWith("/stories/") || path.startsWith("/accounts") ||
+                        path.startsWith("/challenge") || path.startsWith("/two_factor")) {
+                    return false;
+                }
+
+                // ---- Post & Ghost: after publishing a reel/post, creator gets redirected
+                //      to the home feed or their profile. Catch it and return to inbox. ----
+                String cur = view.getUrl();
+                if (cur != null && (cur.startsWith("https://www.instagram.com/create") ||
+                        cur.startsWith("https://www.instagram.com/p/"))) {
+                    // Likely a post-publish redirect – let it through if it's a post page
+                    if (path.startsWith("/p/")) return false;
+                    // Otherwise ghost back to inbox
+                    view.loadUrl(INBOX_URL);
+                    return true;
+                }
+
+                // Default: allow (Instagram loads many internal CDN paths)
                 return false;
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                injectZenGramSuite(view);
+
+                Uri uri = Uri.parse(url);
+                String path = uri.getPath();
+                if (path == null) path = "";
+
+                // If this is a single reel page, always inject the single-reel lock
+                if (path.startsWith("/reel/") || path.contains("/reel/")) {
+                    view.evaluateJavascript(REEL_LOCK_JS, null);
+                }
+
+                // Always inject the full ZenGram engine (or fallback guard)
+                injectZenGramEngine(view);
             }
         });
 
         webView.loadUrl(INBOX_URL);
     }
 
-    private int dpToPx(int dp) {
-        return (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                dp,
-                getResources().getDisplayMetrics()
+    // ------------------------------------------------------------------
+    // WebView performance settings tuned for a native-feeling experience
+    // ------------------------------------------------------------------
+    @SuppressLint("SetJavaScriptEnabled")
+    private void configureWebSettings() {
+        WebSettings s = webView.getSettings();
+
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setDatabaseEnabled(true);
+
+        // Allow media to play without a tap (needed for inline reel videos)
+        s.setMediaPlaybackRequiresUserGesture(false);
+
+        // Disable pinch-zoom — matches native app feel
+        s.setSupportZoom(false);
+        s.setBuiltInZoomControls(false);
+        s.setDisplayZoomControls(false);
+
+        // File / content access for the file chooser (Post & Ghost uploads)
+        s.setAllowFileAccess(true);
+        s.setAllowContentAccess(true);
+
+        // Aggressive caching for faster page loads on repeat visits
+        s.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+        // Viewport — makes Instagram render its mobile layout
+        s.setLoadWithOverviewMode(true);
+        s.setUseWideViewPort(true);
+
+        // Mixed content: allow HTTPS pages to load HTTP sub-resources (CDN images)
+        s.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+
+        // Chrome 130 Mobile UA — tells Instagram to serve its full native mobile experience
+        s.setUserAgentString(
+            "Mozilla/5.0 (Linux; Android 14; Pixel 8) " +
+            "AppleWebKit/537.36 (KHTML, like Gecko) " +
+            "Chrome/130.0.6723.86 Mobile Safari/537.36"
         );
+
+        // Render at full 60 fps
+        webView.setLayerType(WebView.LAYER_TYPE_HARDWARE, null);
+
+        // Enable smooth scrolling (Android 9+)
+        webView.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+
+        // Suppress long-press text selection (more app-like feel)
+        webView.setHapticFeedbackEnabled(false);
+        webView.setLongClickable(false);
     }
 
-    /**
-     * Reel Creator Dialog: Insta-app-like creator studio for posting Reels
-     */
-    private void showReelCreatorDialog() {
-        String[] options = {
-                "🎬 Choose Reel Video from Gallery",
-                "📹 Record New Reel with Camera",
-                "🌐 Open Instagram Reel Studio",
-                "📷 Post Story / Photo"
-        };
-
-        new AlertDialog.Builder(this)
-                .setTitle("🎬 ZenGram Reel & Post Studio")
-                .setItems(options, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 0) {
-                            // 1. Pick video from gallery
-                            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                            intent.setType("video/*");
-                            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"video/mp4", "video/quicktime", "video/x-matroska", "video/webm"});
-                            startActivityForResult(Intent.createChooser(intent, "Select Reel Video"), REEL_VIDEO_PICK_CODE);
-                        } else if (which == 1) {
-                            // 2. Record video with Camera
-                            Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                            startActivityForResult(intent, REEL_CAMERA_CAPTURE_CODE);
-                        } else if (which == 2) {
-                            // 3. Open Instagram Reel Creator flow directly
-                            webView.loadUrl("https://www.instagram.com/create/style/");
-                        } else if (which == 3) {
-                            // 4. Post Story / Photo
-                            webView.loadUrl("https://www.instagram.com/create/story/");
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-
-    private void checkRequiredPermissions() {
-        String[] permissions = {
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO
-        };
-        boolean needsRequest = false;
-        for (String perm : permissions) {
-            if (checkSelfPermission(perm) != PackageManager.PERMISSION_GRANTED) {
-                needsRequest = true;
-                break;
-            }
-        }
-        if (needsRequest) {
-            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == FILE_CHOOSER_RESULT_CODE) {
-            if (filePathCallback != null) {
-                Uri[] results = null;
-                if (resultCode == Activity.RESULT_OK && data != null) {
-                    if (data.getData() != null) {
-                        results = new Uri[]{data.getData()};
-                    } else if (data.getClipData() != null) {
-                        int count = data.getClipData().getItemCount();
-                        results = new Uri[count];
-                        for (int i = 0; i < count; i++) {
-                            results[i] = data.getClipData().getItemAt(i).getUri();
-                        }
-                    }
-                }
-                filePathCallback.onReceiveValue(results);
-                filePathCallback = null;
-            }
-        } else if (requestCode == REEL_VIDEO_PICK_CODE || requestCode == REEL_CAMERA_CAPTURE_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-                Toast.makeText(this, "🎬 Video selected! Loading Instagram Reel Studio to finish...", Toast.LENGTH_SHORT).show();
-                webView.loadUrl("https://www.instagram.com/create/style/");
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    /**
-     * Injects the ZenGram Core Engine & CSS from assets into Instagram WebView
-     */
-    private void injectZenGramSuite(WebView view) {
+    // ------------------------------------------------------------------
+    // Inject full ZenGram engine from bundled assets; inline guard fallback
+    // ------------------------------------------------------------------
+    private void injectZenGramEngine(WebView view) {
+        // Inject CSS
         String css = loadAssetString("zengram-style.css");
-        String js = loadAssetString("zengram-engine.js");
-
         if (css.length() > 0) {
-            String cssInjection = "(function() {" +
-                    "  var s = document.getElementById('zengram-injected-style');" +
-                    "  if (!s) {" +
-                    "    s = document.createElement('style');" +
-                    "    s.id = 'zengram-injected-style';" +
-                    "    s.textContent = " + escapeJsString(css) + ";" +
-                    "    document.head.appendChild(s);" +
-                    "  }" +
-                    "})();";
-            view.evaluateJavascript(cssInjection, null);
+            view.evaluateJavascript(
+                "(function(){" +
+                "  if(document.getElementById('__zg_css')) return;" +
+                "  var s=document.createElement('style');" +
+                "  s.id='__zg_css';" +
+                "  s.textContent=" + jsStr(css) + ";" +
+                "  document.head&&document.head.appendChild(s);" +
+                "})();",
+                null
+            );
         }
 
+        // Inject JS engine
+        String js = loadAssetString("zengram-engine.js");
         if (js.length() > 0) {
             view.evaluateJavascript(js, null);
         } else {
-            // Fallback lightweight guard
-            String fallback = "(function() {" +
-                    "  var s = document.createElement('style');" +
-                    "  s.textContent = 'a[href=\"/\"], a[href=\"/explore/\"], a[href=\"/reels/\"], footer, div[role=\"complementary\"] { display: none !important; }';" +
-                    "  document.head.appendChild(s);" +
-                    "  var path = window.location.pathname;" +
-                    "  if (path === '/' || path.startsWith('/explore') || (path.startsWith('/reels') && !path.includes('/reel/'))) {" +
-                    "    window.location.replace('" + INBOX_URL + "');" +
-                    "  }" +
-                    "})();";
-            view.evaluateJavascript(fallback, null);
+            view.evaluateJavascript(GUARD_JS_FALLBACK, null);
         }
     }
 
@@ -342,9 +317,7 @@ public class MainActivity extends Activity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buf = new byte[4096];
             int len;
-            while ((len = is.read(buf)) != -1) {
-                baos.write(buf, 0, len);
-            }
+            while ((len = is.read(buf)) != -1) baos.write(buf, 0, len);
             is.close();
             return baos.toString("UTF-8");
         } catch (Exception e) {
@@ -352,141 +325,173 @@ public class MainActivity extends Activity {
         }
     }
 
-    private String escapeJsString(String str) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\"");
-        for (int i = 0; i < str.length(); i++) {
-            char c = str.charAt(i);
-            if (c == '\"') sb.append("\\\"");
+    /** Wrap a Java string as a safe JS string literal. */
+    private String jsStr(String src) {
+        StringBuilder sb = new StringBuilder("\"");
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if      (c == '"')  sb.append("\\\"");
             else if (c == '\\') sb.append("\\\\");
             else if (c == '\n') sb.append("\\n");
             else if (c == '\r') sb.append("\\r");
-            else sb.append(c);
+            else if (c == '\t') sb.append("\\t");
+            else                sb.append(c);
         }
-        sb.append("\"");
-        return sb.toString();
+        return sb.append('"').toString();
     }
 
-    /**
-     * Native Bridge between WebView JavaScript and Android hardware
-     */
+    // ------------------------------------------------------------------
+    // Native JS bridge — keeps surface minimal; only what the engine needs
+    // ------------------------------------------------------------------
     public class ZenGramNativeBridge {
+
+        /** Called by REEL_LOCK_JS when a reel video fires its 'ended' event. */
         @JavascriptInterface
-        public void openReelCreator() {
+        public void onReelEnded() {
             runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showReelCreatorDialog();
+                @Override public void run() {
+                    // Small delay so the 'end' frame is visible before navigating back
+                    webView.postDelayed(new Runnable() {
+                        @Override public void run() {
+                            webView.loadUrl(INBOX_URL);
+                        }
+                    }, 600);
                 }
             });
         }
 
+        /** Called by view-once sandbox "Save" button in zengram-engine.js */
         @JavascriptInterface
         public void saveMediaToGallery(final String mediaUrl, final String filename) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    downloadAndSaveToGallery(mediaUrl, filename);
+            // Run download off the main thread
+            new Thread(new Runnable() {
+                @Override public void run() {
+                    doSaveToGallery(mediaUrl, filename);
                 }
-            });
+            }).start();
         }
 
         @JavascriptInterface
         public void showToast(final String msg) {
             runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+                @Override public void run() {
                     Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
 
-    /**
-     * Downloads and permanently saves an unlocked view-once photo or video to phone Gallery
-     */
-    private void downloadAndSaveToGallery(final String mediaUrl, final String filename) {
-        Toast.makeText(this, "💾 Saving unlocked photo to Gallery...", Toast.LENGTH_SHORT).show();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    File picturesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    File zengramDir = new File(picturesDir, "ZenGram");
-                    if (!zengramDir.exists()) {
-                        zengramDir.mkdirs();
-                    }
-                    String finalName = filename != null && filename.length() > 0 ? filename : ("unlocked_" + System.currentTimeMillis() + ".jpg");
-                    final File destFile = new File(zengramDir, finalName);
-
-                    if (mediaUrl.startsWith("data:")) {
-                        // Base64 Data URL
-                        int commaIdx = mediaUrl.indexOf(",");
-                        if (commaIdx != -1) {
-                            byte[] decoded = Base64.decode(mediaUrl.substring(commaIdx + 1), Base64.DEFAULT);
-                            FileOutputStream fos = new FileOutputStream(destFile);
-                            fos.write(decoded);
-                            fos.flush();
-                            fos.close();
-                        }
-                    } else {
-                        // HTTP/HTTPS CDN URL
-                        URL u = new URL(mediaUrl);
-                        HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-                        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile)");
-                        conn.connect();
-                        InputStream is = conn.getInputStream();
-                        FileOutputStream fos = new FileOutputStream(destFile);
-                        byte[] buf = new byte[8192];
-                        int r;
-                        while ((r = is.read(buf)) != -1) {
-                            fos.write(buf, 0, r);
-                        }
-                        fos.flush();
-                        fos.close();
-                        is.close();
-                    }
-
-                    // Scan file so it shows in Google Photos / Gallery immediately
-                    MediaScannerConnection.scanFile(
-                            MainActivity.this,
-                            new String[]{destFile.getAbsolutePath()},
-                            null,
-                            null
-                    );
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "✅ View-Once photo saved to Gallery (Pictures/ZenGram)!", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                } catch (final Exception e) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Failed to save media: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+    // ------------------------------------------------------------------
+    // Download and save view-once media to Pictures/ZenGram/
+    // ------------------------------------------------------------------
+    private void doSaveToGallery(final String mediaUrl, final String filename) {
+        runOnUiThread(new Runnable() {
+            @Override public void run() {
+                Toast.makeText(MainActivity.this, "💾 Saving to Gallery…", Toast.LENGTH_SHORT).show();
             }
-        }).start();
+        });
+        try {
+            File dir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                "ZenGram"
+            );
+            if (!dir.exists()) dir.mkdirs();
+
+            String name = (filename != null && filename.length() > 0)
+                ? filename
+                : "unlocked_" + System.currentTimeMillis() + ".jpg";
+            final File dest = new File(dir, name);
+
+            if (mediaUrl.startsWith("data:")) {
+                int comma = mediaUrl.indexOf(',');
+                if (comma != -1) {
+                    byte[] bytes = Base64.decode(mediaUrl.substring(comma + 1), Base64.DEFAULT);
+                    FileOutputStream fos = new FileOutputStream(dest);
+                    fos.write(bytes);
+                    fos.close();
+                }
+            } else {
+                URL u = new URL(mediaUrl);
+                HttpURLConnection conn = (HttpURLConnection) u.openConnection();
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile)");
+                conn.connect();
+                InputStream in = conn.getInputStream();
+                FileOutputStream fos = new FileOutputStream(dest);
+                byte[] buf = new byte[8192];
+                int r;
+                while ((r = in.read(buf)) != -1) fos.write(buf, 0, r);
+                fos.close();
+                in.close();
+            }
+
+            MediaScannerConnection.scanFile(MainActivity.this,
+                new String[]{dest.getAbsolutePath()}, null, null);
+
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    Toast.makeText(MainActivity.this,
+                        "✅ Saved to Pictures/ZenGram!", Toast.LENGTH_LONG).show();
+                }
+            });
+        } catch (final Exception e) {
+            runOnUiThread(new Runnable() {
+                @Override public void run() {
+                    Toast.makeText(MainActivity.this,
+                        "Save failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Permissions
+    // ------------------------------------------------------------------
+    private void checkRequiredPermissions() {
+        String[] perms = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VIDEO
+        };
+        for (String p : perms) {
+            if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(perms, PERMISSION_CODE);
+                return;
+            }
+        }
     }
 
     @Override
-    public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            String curUrl = webView.getUrl();
-            if (curUrl != null && (curUrl.contains("/direct/t/") || curUrl.contains("/saved") || curUrl.contains("/create") || curUrl.contains("/p/"))) {
-                webView.loadUrl(INBOX_URL);
-                if (postReelFab != null) postReelFab.setVisibility(View.VISIBLE);
-            } else if (curUrl != null && !curUrl.equals(INBOX_URL)) {
-                webView.loadUrl(INBOX_URL);
-                if (postReelFab != null) postReelFab.setVisibility(View.VISIBLE);
-            } else {
-                super.onBackPressed();
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FILE_CHOOSER_CODE) {
+            if (filePathCallback == null) return;
+            Uri[] results = null;
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                if (data.getData() != null) {
+                    results = new Uri[]{data.getData()};
+                } else if (data.getClipData() != null) {
+                    int n = data.getClipData().getItemCount();
+                    results = new Uri[n];
+                    for (int i = 0; i < n; i++)
+                        results[i] = data.getClipData().getItemAt(i).getUri();
+                }
             }
+            filePathCallback.onReceiveValue(results);
+            filePathCallback = null;
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Back button: always land on inbox rather than popping through history
+    // ------------------------------------------------------------------
+    @Override
+    public void onBackPressed() {
+        if (webView == null) { super.onBackPressed(); return; }
+        String cur = webView.getUrl();
+        if (cur != null && !cur.equals(INBOX_URL)) {
+            webView.loadUrl(INBOX_URL);
         } else {
             super.onBackPressed();
         }

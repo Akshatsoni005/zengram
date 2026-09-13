@@ -2,14 +2,13 @@
  * ZenGram Stylesheet - Pure Distraction-Free Instagram Chat UI
  */
 
-/* 1. Hide Distraction Elements */
+/* 1. Hide Distraction Elements (Keep native Post button and Profile visible) */
 a[href="/"],
 a[href="/explore/"],
 a[href="/reels/"],
 div[role="navigation"] a[href="/"],
 div[role="navigation"] a[href="/explore/"],
 div[role="navigation"] a[href="/reels/"],
-footer,
 div[role="complementary"] {
   display: none !important;
 }
@@ -257,27 +256,45 @@ div[role="main"] {
   padding: 6px 12px;
 }
 
-/* 6. Post Reel Action Button */
-.zengram-post-reel-btn {
+/* 6. Single-Reel Lock (Stops continuous reel scrolling/swiping) */
+html.zengram-locked-reel,
+body.zengram-locked-reel {
+  overflow: hidden !important;
+  overscroll-behavior-y: none !important;
+  touch-action: pan-x pinch-zoom !important;
+  height: 100% !important;
+}
+
+.zengram-locked-reel div[role="region"] > div > div:nth-child(n+2),
+.zengram-locked-reel section > div > div:nth-child(n+2),
+.zengram-locked-reel main > div > div > div:nth-child(n+2),
+.zengram-locked-reel div[style*="scroll-snap-type"] > div:nth-child(n+2),
+.zengram-locked-reel div[class*="suggested"],
+.zengram-locked-reel div[class*="Related"],
+.zengram-locked-reel div[class*="MoreFrom"] {
+  display: none !important;
+}
+
+.zengram-reel-back-btn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 999999;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-  color: #ffffff !important;
-  font-weight: 600;
-  font-size: 13px;
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(220, 39, 67, 0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   text-decoration: none !important;
-}
-
-.zengram-post-reel-btn:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 6px 16px rgba(220, 39, 67, 0.45);
 }
 
 /* 7. View-Once Disappearing Media Unlocked Action */

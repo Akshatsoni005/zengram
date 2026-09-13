@@ -37,6 +37,8 @@
   const PROFILE_REGEX = /^\/([A-Za-z0-9._]{1,30})\/?$/;
   // Specific story pattern: /stories/username/...
   const STORY_REGEX = /^\/stories\/([A-Za-z0-9._]{1,30})\/?/;
+  // Specific single reel sent in chat: /reel/code/
+  const SINGLE_REEL_REGEX = /^\/reel\/([A-Za-z0-9_-]+)\/?$/;
 
   // Reserved non-profile single-segment words
   const RESERVED_SLUGS = new Set([
@@ -44,6 +46,8 @@
     'developer', 'about', 'legal', 'help', 'api', 'graphql',
     'privacy', 'terms', 'directory'
   ]);
+
+  let currentSingleReelId = null;
 
   /**
    * Determine if a route is permitted
@@ -55,8 +59,8 @@
     // 2. Saved section is explicitly permitted (study notes, saved formulas/diagrams)
     if (pathname.includes('/saved')) return true;
 
-    // 3. Explore & Reels feeds are strictly blocked
-    if (pathname.startsWith('/explore') || pathname.startsWith('/reels')) {
+    // 3. Explore & endless Reels feeds are strictly blocked
+    if (pathname.startsWith('/explore') || pathname === '/reels' || pathname.startsWith('/reels/')) {
       return false;
     }
 
@@ -65,13 +69,19 @@
       if (pathname.startsWith(prefix)) return true;
     }
 
-    // 5. Allowed: Story of a specific user (from chat or profile search)
+    // 5. Single reel from chat/saved: permitted ONLY as a locked single reel
+    const singleReelMatch = pathname.match(SINGLE_REEL_REGEX);
+    if (singleReelMatch) {
+      return true;
+    }
+
+    // 6. Allowed: Story of a specific user (from chat or profile search)
     const storyMatch = pathname.match(STORY_REGEX);
     if (storyMatch && !RESERVED_SLUGS.has(storyMatch[1].toLowerCase())) {
       return true;
     }
 
-    // 6. Allowed: Specific user profile (from search or chat @mention)
+    // 7. Allowed: Specific user profile (from search or chat @mention)
     const profileMatch = pathname.match(PROFILE_REGEX);
     if (profileMatch && !RESERVED_SLUGS.has(profileMatch[1].toLowerCase())) {
       return true;
@@ -91,17 +101,111 @@
     }
   }
 
+  /**
+   * Locks /reel/<id>/ so ONLY the sent reel is viewed.
+   * Kills swipe/scroll listeners that cycle to next reels in continuous loop.
+   */
+  function handleSingleReelLock() {
+    const path = window.location.pathname;
+    const match = path.match(SINGLE_REEL_REGEX);
+    if (match) {
+      const reelId = match[1];
+      if (!currentSingleReelId) {
+        currentSingleReelId = reelId;
+      } else if (currentSingleReelId !== reelId) {
+        // Continuous loop attempted to load the next reel! Block it and return to inbox
+        console.warn('[ZenGram] Blocked transition to continuous reel loop:', reelId);
+        window.location.replace(INBOX_URL);
+        return;
+      }
+
+      document.documentElement.classList.add('zengram-locked-reel');
+      document.body && document.body.classList.add('zengram-locked-reel');
+
+      // Inject minimal top "Back to Chat" bar
+      if (!document.getElementById('zengram-reel-back-btn')) {
+        const btn = document.createElement('button');
+        btn.id = 'zengram-reel-back-btn';
+        btn.className = 'zengram-reel-back-btn';
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          <span>Back to Chat</span>
+        `;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          window.location.replace(INBOX_URL);
+        };
+        document.body && document.body.appendChild(btn);
+      }
+
+      // Ensure videos on this reel don't auto-advance or loop to feed
+      const videos = document.querySelectorAll('video');
+      videos.forEach(v => {
+        if (!v.__zg_lock) {
+          v.__zg_lock = true;
+          v.loop = false;
+          v.addEventListener('ended', () => {
+            v.pause();
+          });
+        }
+      });
+    } else {
+      currentSingleReelId = null;
+      document.documentElement.classList.remove('zengram-locked-reel');
+      document.body && document.body.classList.remove('zengram-locked-reel');
+      const btn = document.getElementById('zengram-reel-back-btn');
+      if (btn) btn.remove();
+    }
+  }
+
+  // Intercept touch swipe gestures that trigger continuous reel scroll
+  let touchStartY = 0;
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches && e.touches[0]) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true, capture: true });
+
+  window.addEventListener('touchmove', function (e) {
+    if (window.location.pathname.startsWith('/reel/')) {
+      if (e.touches && e.touches[0]) {
+        const diffY = e.touches[0].clientY - touchStartY;
+        // Block vertical scrolling/swiping between reels
+        if (Math.abs(diffY) > 8) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }
+      }
+    }
+  }, { passive: false, capture: true });
+
+  window.addEventListener('wheel', function (e) {
+    if (window.location.pathname.startsWith('/reel/')) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+    }
+  }, { passive: false, capture: true });
+
   // Intercept history navigation (SPA transitions)
   const wrapHistory = (method) => {
     const orig = history[method];
     history[method] = function () {
       orig.apply(this, arguments);
-      setTimeout(enforceRouteGuard, 10);
+      setTimeout(() => {
+        enforceRouteGuard();
+        handleSingleReelLock();
+      }, 10);
     };
   };
   wrapHistory('pushState');
   wrapHistory('replaceState');
-  window.addEventListener('popstate', enforceRouteGuard);
+  window.addEventListener('popstate', () => {
+    enforceRouteGuard();
+    handleSingleReelLock();
+  });
 
   /**
    * Intercept clicks on links (handles Reel sandboxing and blocking)
@@ -135,9 +239,7 @@
         const inChatContext = !!anchor.closest('[role="main"], div[tabindex="-1"], div[role="row"]');
         const inSavedContext = window.location.pathname.includes('/saved') || !!anchor.closest('div[role="tabpanel"], article, main');
         if (inChatContext || window.location.pathname.startsWith('/direct/') || inSavedContext) {
-          e.preventDefault();
-          e.stopPropagation();
-          openReelSandbox(url.href, anchor);
+          // Allow single reel view to open with native smoothness; handleSingleReelLock prevents loop
           return;
         } else {
           // Reel click outside of chat/saved: blocked completely
@@ -562,65 +664,27 @@
     }
   }
 
-  /* =========================================================================
-   * 6. POST REEL ACTION BUTTON (Creator "Post & Ghost" Mode)
-   * ========================================================================= */
-  function injectPostReelButton() {
-    // Check if we are in direct inbox or thread
-    if (!window.location.pathname.startsWith('/direct')) return;
-
-    const targetHeader = document.querySelector('div[role="main"] header, div[role="navigation"], .zengram-call-panel');
-    if (!targetHeader) return;
-
-    if (document.getElementById('zengram-btn-post-reel')) return;
-
-    const reelBtn = document.createElement('button');
-    reelBtn.id = 'zengram-btn-post-reel';
-    reelBtn.className = 'zengram-post-reel-btn';
-    reelBtn.type = 'button';
-    reelBtn.innerHTML = `
-      <span>🎬</span>
-      <span>Post Reel</span>
-    `;
-
-    reelBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (window.ZenGramNative && typeof window.ZenGramNative.openReelCreator === 'function') {
-        window.ZenGramNative.openReelCreator();
-      } else {
-        // Open Instagram's native Reel creator flow
-        window.location.assign('https://www.instagram.com/create/style/');
-      }
+  // High-performance debounced DOM updater (avoids WebView lag / CPU thrashing)
+  let domUpdateScheduled = false;
+  function scheduleDOMUpdate() {
+    if (domUpdateScheduled) return;
+    domUpdateScheduled = true;
+    requestAnimationFrame(() => {
+      domUpdateScheduled = false;
+      sanitizeDOM();
+      scanAndUnlockViewOnceMedia();
+      handleSingleReelLock();
     });
-
-    if (targetHeader.classList.contains('zengram-call-panel')) {
-      targetHeader.insertBefore(reelBtn, targetHeader.firstChild);
-    } else {
-      targetHeader.appendChild(reelBtn);
-    }
   }
 
   // Initial execution
   enforceRouteGuard();
   sanitizeDOM();
   scanAndUnlockViewOnceMedia();
-  injectPostReelButton();
+  handleSingleReelLock();
 
-  // MutationObserver for dynamic React DOM changes
-  const domObserver = new MutationObserver(() => {
-    sanitizeDOM();
-    scanAndUnlockViewOnceMedia();
-    injectPostReelButton();
-  });
+  // MutationObserver for dynamic React DOM changes (lightweight & debounced)
+  const domObserver = new MutationObserver(scheduleDOMUpdate);
   domObserver.observe(document.documentElement, { childList: true, subtree: true });
-
-  // Fallback timer
-  setInterval(() => {
-    enforceRouteGuard();
-    sanitizeDOM();
-    scanAndUnlockViewOnceMedia();
-    injectPostReelButton();
-  }, 400);
 
 })();

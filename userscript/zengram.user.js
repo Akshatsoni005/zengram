@@ -20,7 +20,6 @@
     div[role="navigation"] a[href="/"],
     div[role="navigation"] a[href="/explore/"],
     div[role="navigation"] a[href="/reels/"],
-    footer,
     div[role="complementary"] {
       display: none !important;
     }
